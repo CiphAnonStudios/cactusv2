@@ -13,14 +13,23 @@
   <!-- Retro Scanline Overlay -->
   <div id="crt-overlay"></div>
 
+  <!-- Studio Logo (Bottom Corner) -->
+  <div id="studio-badge" title="Developer Studio">
+    <img id="studio-logo" src="logo.png" alt="Studio Logo" onerror="this.style.display='none'; document.getElementById('studio-fallback').style.display='flex';">
+    <div id="studio-fallback" class="pixel-studio-badge">
+      <div class="studio-icon-pixel"></div>
+      <span class="studio-text">STUDIO</span>
+    </div>
+  </div>
+
   <!-- In-Game Stand Modals -->
   <div id="modal-container" class="hidden">
     <!-- Sell Stand Modal -->
     <div id="sell-modal" class="pixel-modal hidden">
-      <div class="modal-header">🌵 CACTUS TRADING POST</div>
+      <div class="modal-header">CACTUS TRADING POST</div>
       <div class="modal-body">
-        <p id="sell-parts-count">Cactus Parts: 0</p>
-        <p id="sell-rate-text">Rate: $10 per part</p>
+        <p id="sell-parts-count">Parts In Bag: 0</p>
+        <p id="sell-rate-text">Market Rate: $10 Gold / Part</p>
         <div class="modal-actions">
           <button id="btn-sell-one" class="pixel-btn">SELL 1</button>
           <button id="btn-sell-all" class="pixel-btn btn-gold">SELL ALL</button>
@@ -31,14 +40,14 @@
 
     <!-- Upgrade Stand Modal -->
     <div id="shop-modal" class="pixel-modal hidden">
-      <div class="modal-header">⚒️ HAMMER & WORKSHOP UPGRADES</div>
+      <div class="modal-header">HAMMER & ABILITY WORKSHOP</div>
       <div class="modal-gold-display" id="shop-gold-display">GOLD: $0</div>
       <div class="modal-body upgrades-grid" id="upgrades-list"></div>
       <button id="btn-close-shop" class="pixel-btn btn-close">CLOSE [ESC]</button>
     </div>
   </div>
 
-  <!-- Mobile Controls -->
+  <!-- Mobile Touch Controls -->
   <div id="mobile-controls">
     <div id="joystick-base">
       <div id="joystick-stick"></div>
