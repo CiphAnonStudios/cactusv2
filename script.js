@@ -1,10 +1,10 @@
 /* ==========================================================================
-   PIXEL CACTUS CLASH - CONTINUOUS DROPS & HAMMER SMASH
-   - Fullscreen Canvas & Responsive Resize
-   - Block Character with Expressive Eyes & Heavy Pixel Hammer
-   - Controls: WASD = Move | SPACE = Hammer Smash | I = Dash
-   - Continuous Cacti Drops across the Arena (25 to 50 Cacti per Wave)
-   - Interactive Sell & Shop Stands spawn only after 25-50 cacti fall & are defeated
+   PIXEL CACTUS CLASH - ENHANCED ARCADE VERSION
+   - Procedural Pixel Icons Only (No Emojis)
+   - Punchy Hammer Smash with Deflection & Hit-Stop Feedback
+   - Game Over Direct Return to Main Menu
+   - Interactive In-Arena Trading & Workshop Stands (after 25-50 cacti drops)
+   - Studio Logo Support in Bottom Corner
    ========================================================================== */
 
 (function () {
@@ -41,37 +41,40 @@
       osc.start();
       osc.stop(this.ctx.currentTime + dur);
     },
-    warning() { this.tone(360, 'square', 0.1, 180, 0.15); },
-    fall() { this.tone(550, 'sawtooth', 0.6, 90, 0.12); },
+    warning() { this.tone(360, 'square', 0.08, 180, 0.14); },
+    fall() { this.tone(540, 'sawtooth', 0.55, 80, 0.12); },
     plop(scale = 1) {
       this.tone(130 * (1 / scale), 'triangle', 0.28, 25, 0.45);
       setTimeout(() => this.tone(65, 'square', 0.35, 15, 0.4), 40);
     },
-    spikeShot() { this.tone(680, 'square', 0.07, 200, 0.12); },
-    hammerSwing() { this.tone(180, 'sine', 0.14, 40, 0.22); },
+    spikeShot() { this.tone(700, 'square', 0.06, 220, 0.12); },
+    hammerSwing() { this.tone(200, 'sine', 0.12, 50, 0.2); },
     hammerHit() {
-      this.tone(120, 'square', 0.12, 30, 0.35);
-      this.tone(60, 'triangle', 0.18, 20, 0.4);
+      this.tone(140, 'square', 0.1, 30, 0.38);
+      this.tone(70, 'triangle', 0.16, 20, 0.42);
     },
-    dash() { this.tone(420, 'triangle', 0.16, 950, 0.2); },
+    deflect() {
+      this.tone(850, 'square', 0.08, 1200, 0.25);
+    },
+    dash() { this.tone(420, 'triangle', 0.15, 950, 0.2); },
     pickup() {
-      this.tone(523, 'square', 0.08, null, 0.12);
-      setTimeout(() => this.tone(784, 'square', 0.12, null, 0.15), 60);
+      this.tone(523, 'square', 0.06, null, 0.12);
+      setTimeout(() => this.tone(784, 'square', 0.1, null, 0.15), 50);
     },
-    hurt() { this.tone(110, 'sawtooth', 0.28, 25, 0.4); },
+    hurt() { this.tone(110, 'sawtooth', 0.26, 25, 0.4); },
     coin() {
       this.tone(659, 'triangle', 0.08, null, 0.18);
       setTimeout(() => this.tone(987, 'triangle', 0.14, null, 0.22), 70);
     },
     interact() { this.tone(440, 'triangle', 0.1, null, 0.2); },
     destroy() {
-      this.tone(140, 'sawtooth', 0.4, 20, 0.4);
-      this.tone(75, 'square', 0.35, 15, 0.35);
+      this.tone(140, 'sawtooth', 0.35, 20, 0.4);
+      this.tone(75, 'square', 0.3, 15, 0.35);
     }
   };
 
   // --- SAVE SYSTEM ---
-  const SAVE_KEY = 'PIXEL_CACTUS_CLASH_SAVE_v3';
+  const SAVE_KEY = 'PIXEL_CACTUS_CLASH_SAVE_v4';
   let SaveData = {
     money: 0,
     cactusParts: 0,
@@ -117,16 +120,16 @@
 
   // Upgrades Configuration
   const UPGRADES_DB = {
-    hammerSpeed: { name: 'Hammer Speed', desc: 'Smash faster with hammer', max: 5, base: 25, mult: 1.8, icon: '🔨' },
-    hammerStrength: { name: 'Hammer Power', desc: 'Heavy blunt cactus damage', max: 5, base: 30, mult: 1.9, icon: '💪' },
-    harvestYield: { name: 'Bonus Harvest', desc: 'More parts crushed per drop', max: 5, base: 35, mult: 2.0, icon: '🌱' },
-    moveSpeed: { name: 'Speedy Block', desc: 'Faster arena movement', max: 5, base: 25, mult: 1.7, icon: '👟' },
-    dashLength: { name: 'Longer Dash', desc: 'Dash further across arena', max: 4, base: 40, mult: 2.0, icon: '💨' },
-    dashCooldown: { name: 'Dash Recharge', desc: 'Dash recharges much faster', max: 5, base: 45, mult: 1.85, icon: '⚡' },
-    partValue: { name: 'Trader Rate', desc: 'Earn +$4 per sold cactus part', max: 5, base: 50, mult: 2.1, icon: '🪙' },
-    shockwaveDash: { name: 'Shockwave Dash', desc: 'Dashing destroys nearby spikes', max: 1, base: 180, mult: 1, icon: '💥' },
-    tempShield: { name: 'Shield Aura', desc: 'Absorbs 1 hit per wave', max: 1, base: 140, mult: 1, icon: '🛡️' },
-    magnetPickup: { name: 'Part Magnet', desc: 'Attracts distant cactus parts', max: 4, base: 60, mult: 1.9, icon: '🧲' }
+    hammerSpeed: { name: 'Hammer Speed', desc: 'Faster swing recovery', max: 5, base: 25, mult: 1.8 },
+    hammerStrength: { name: 'Hammer Power', desc: 'Heavier blunt crush damage', max: 5, base: 30, mult: 1.9 },
+    harvestYield: { name: 'Harvest Yield', desc: 'More parts crushed per cactus', max: 5, base: 35, mult: 2.0 },
+    moveSpeed: { name: 'Block Agility', desc: 'Faster arena movement', max: 5, base: 25, mult: 1.7 },
+    dashLength: { name: 'Dash Distance', desc: 'Dash further across arena', max: 4, base: 40, mult: 2.0 },
+    dashCooldown: { name: 'Dash Recharge', desc: 'Dash recharges much faster', max: 5, base: 45, mult: 1.85 },
+    partValue: { name: 'Market Rates', desc: 'Earn +$4 per sold cactus part', max: 5, base: 50, mult: 2.1 },
+    shockwaveDash: { name: 'Shockwave Dash', desc: 'Dash shockwave deletes spikes', max: 1, base: 180, mult: 1 },
+    tempShield: { name: 'Shield Aura', desc: 'Absorbs 1 hit per wave', max: 1, base: 140, mult: 1 },
+    magnetPickup: { name: 'Part Magnet', desc: 'Attracts distant cactus parts', max: 4, base: 60, mult: 1.9 }
   };
 
   function getUpgradeCost(key) {
@@ -154,12 +157,18 @@
   window.addEventListener('resize', resizeCanvas);
   resizeCanvas();
 
-  // Screen Shake
+  // Screen Shake & Hit-Stop
   let shakeTime = 0;
   let shakeMag = 0;
+  let hitStopTime = 0;
+
   function triggerShake(magnitude, duration) {
     shakeMag = magnitude;
     shakeTime = duration;
+  }
+
+  function triggerHitStop(seconds) {
+    hitStopTime = seconds;
   }
 
   // --- GAME STATES ---
@@ -179,14 +188,18 @@
     keys[key] = true;
     keys[e.code] = true;
 
+    if (gameState === STATES.GAMEOVER) {
+      // Return to main menu on any key press
+      gameState = STATES.MENU;
+      return;
+    }
+
     if (e.code === 'Space') {
       e.preventDefault();
-      // HAMMER ON SPACE
       if (gameState === STATES.PLAYING) Player.attack();
     }
 
     if (key === 'i') {
-      // DASH ON I
       if (gameState === STATES.PLAYING) Player.dash();
     }
 
@@ -206,7 +219,7 @@
   canvas.addEventListener('mousedown', (e) => {
     AudioEngine.init();
     if (gameState === STATES.MENU) {
-      const bw = 240, bh = 60;
+      const bw = 240, bh = 56;
       const bx = screenW / 2 - bw / 2;
       const by = screenH / 2 + 20;
       if (e.clientX >= bx && e.clientX <= bx + bw && e.clientY >= by && e.clientY <= by + bh) {
@@ -217,7 +230,8 @@
         Player.attack();
       }
     } else if (gameState === STATES.GAMEOVER) {
-      startNewGame();
+      // Return to Main Menu on click
+      gameState = STATES.MENU;
     }
   });
 
@@ -295,7 +309,7 @@
     }
   });
 
-  // --- PARTICLES & EFFECTS ---
+  // --- PARTICLES & COMBAT FEEDBACK ---
   let particles = [];
   function addDust(x, y, count = 8, color = '#e8c288', sizeMax = 5) {
     for (let i = 0; i < count; i++) {
@@ -318,7 +332,7 @@
     const pal = ['#2ed573', '#1e824c', '#55efc4', '#ffa502'];
     for (let i = 0; i < count; i++) {
       const ang = Math.random() * Math.PI * 2;
-      const spd = Math.random() * 4.5 + 1.5;
+      const spd = Math.random() * 5 + 2;
       particles.push({
         x, y,
         vx: Math.cos(ang) * spd,
@@ -326,9 +340,14 @@
         size: Math.floor(Math.random() * 6) + 4,
         color: pal[Math.floor(Math.random() * pal.length)],
         life: 1,
-        decay: 0.03
+        decay: 0.032
       });
     }
+  }
+
+  let shockwaves = [];
+  function addShockwave(x, y, radius = 55, color = '#ffd32a') {
+    shockwaves.push({ x, y, r: 10, maxR: radius, color, life: 1 });
   }
 
   let floatingTexts = [];
@@ -340,7 +359,7 @@
   function dropParts(x, y, count) {
     for (let i = 0; i < count; i++) {
       const ang = Math.random() * Math.PI * 2;
-      const dist = Math.random() * 50 + 15;
+      const dist = Math.random() * 55 + 15;
       droppedParts.push({
         x, y,
         targetX: Math.max(30, Math.min(screenW - 30, x + Math.cos(ang) * dist)),
@@ -362,11 +381,79 @@
     });
   }
 
-  // --- BLOCK PLAYER WITH EYES & HEAVY HAMMER ---
+  // --- PROCEDURAL PIXEL ICONS (NO EMOJIS) ---
+  const PixelIcons = {
+    // 8x8 Heart (Full or Empty)
+    drawHeart(ctx, x, y, isFull = true) {
+      ctx.save();
+      ctx.translate(x, y);
+      const fill = isFull ? '#ff4757' : '#332b45';
+      const border = isFull ? '#b31b28' : '#1d1729';
+
+      ctx.fillStyle = border;
+      ctx.fillRect(1, 0, 2, 1); ctx.fillRect(4, 0, 2, 1);
+      ctx.fillRect(0, 1, 4, 1); ctx.fillRect(3, 1, 4, 1);
+      ctx.fillRect(0, 2, 7, 2);
+      ctx.fillRect(1, 4, 5, 1);
+      ctx.fillRect(2, 5, 3, 1);
+      ctx.fillRect(3, 6, 1, 1);
+
+      ctx.fillStyle = fill;
+      ctx.fillRect(1, 1, 2, 1); ctx.fillRect(4, 1, 2, 1);
+      ctx.fillRect(1, 2, 5, 2);
+      ctx.fillRect(2, 4, 3, 1);
+      ctx.fillRect(3, 5, 1, 1);
+
+      if (isFull) {
+        ctx.fillStyle = '#ff8a94';
+        ctx.fillRect(1, 1, 1, 1);
+      }
+      ctx.restore();
+    },
+
+    // 8x8 Shiny Gold Coin
+    drawCoin(ctx, x, y) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.fillStyle = '#b37402';
+      ctx.fillRect(2, 0, 4, 8);
+      ctx.fillRect(0, 2, 8, 4);
+
+      ctx.fillStyle = '#ffd32a';
+      ctx.fillRect(2, 1, 4, 6);
+      ctx.fillRect(1, 2, 6, 4);
+
+      ctx.fillStyle = '#fff48f';
+      ctx.fillRect(2, 2, 2, 2);
+
+      ctx.fillStyle = '#b37402';
+      ctx.fillRect(4, 3, 1, 2);
+      ctx.restore();
+    },
+
+    // 8x8 Cactus Harvest Part Token
+    drawCactusToken(ctx, x, y) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.fillStyle = '#1e824c';
+      ctx.fillRect(2, 0, 4, 8);
+      ctx.fillRect(0, 2, 8, 4);
+
+      ctx.fillStyle = '#2ed573';
+      ctx.fillRect(2, 1, 4, 6);
+      ctx.fillRect(1, 2, 6, 4);
+
+      ctx.fillStyle = '#ffa502';
+      ctx.fillRect(3, 3, 2, 2);
+      ctx.restore();
+    }
+  };
+
+  // --- BLOCK PLAYER WITH EYES & HEAVY PIXEL HAMMER ---
   const Player = {
     x: screenW / 2,
     y: screenH / 2,
-    baseSpeed: 3.8,
+    baseSpeed: 4.0,
     facing: 'down',
     eyeLookX: 0,
     eyeLookY: 2,
@@ -388,7 +475,7 @@
     dashVy: 0,
     dashTrail: [],
 
-    // Hammer Attack
+    // Heavy Hammer Attack
     isAttacking: false,
     attackTimer: 0,
     attackCooldown: 0,
@@ -407,23 +494,23 @@
     },
 
     getSpeed() {
-      return this.baseSpeed + (SaveData.upgrades.moveSpeed * 0.4);
+      return this.baseSpeed + (SaveData.upgrades.moveSpeed * 0.45);
     },
 
     getHammerDelay() {
-      return Math.max(0.18, 0.46 - (SaveData.upgrades.hammerSpeed * 0.055));
+      return Math.max(0.18, 0.44 - (SaveData.upgrades.hammerSpeed * 0.05));
     },
 
     getHammerDamage() {
-      return 22 + (SaveData.upgrades.hammerStrength * 12);
+      return 26 + (SaveData.upgrades.hammerStrength * 14);
     },
 
     getDashDuration() {
-      return 0.16 + (SaveData.upgrades.dashLength * 0.035);
+      return 0.17 + (SaveData.upgrades.dashLength * 0.035);
     },
 
     getDashCooldown() {
-      return Math.max(0.6, 1.5 - (SaveData.upgrades.dashCooldown * 0.17));
+      return Math.max(0.55, 1.4 - (SaveData.upgrades.dashCooldown * 0.16));
     },
 
     dash() {
@@ -452,7 +539,7 @@
       }
 
       const len = Math.hypot(dx, dy) || 1;
-      const spd = 12.0;
+      const spd = 12.5;
       this.dashVx = (dx / len) * spd;
       this.dashVy = (dy / len) * spd;
 
@@ -477,16 +564,40 @@
       this.attackTimer = 0.20;
       this.attackCooldown = this.getHammerDelay();
 
+      // Punchy Ground Shockwave on Swing
+      const smashX = this.x + (this.facing === 'left' ? -22 : this.facing === 'right' ? 22 : 0);
+      const smashY = this.y + (this.facing === 'up' ? -22 : this.facing === 'down' ? 22 : 0);
+      addShockwave(smashX, smashY, 48, '#ffffff');
+
+      // Spike Deflection: Smash wipes or deflects close spikes!
+      let deflected = false;
+      spikes = spikes.filter(spk => {
+        const d = Math.hypot(spk.x - smashX, spk.y - smashY);
+        if (d < 58) {
+          addDust(spk.x, spk.y, 6, '#ffd32a');
+          deflected = true;
+          return false;
+        }
+        return true;
+      });
+      if (deflected) AudioEngine.deflect();
+
       // Check hit on grounded cacti
+      let hitAny = false;
       activeCacti.forEach(cactus => {
         if (cactus.state === 'GROUNDED') {
-          const hitRange = (cactus.width / 2) + 48;
-          const dist = Math.hypot(this.x - cactus.x, this.y - cactus.y);
+          const hitRange = (cactus.width / 2) + 52;
+          const dist = Math.hypot(smashX - cactus.x, smashY - cactus.y);
           if (dist <= hitRange) {
             cactus.hit(this.getHammerDamage());
+            hitAny = true;
           }
         }
       });
+
+      if (hitAny) {
+        triggerHitStop(0.04); // Satisfying micro freeze-frame
+      }
     },
 
     takeDamage(amount = 1) {
@@ -503,7 +614,7 @@
       this.health -= amount;
       this.invincibleTimer = 1.0;
       AudioEngine.hurt();
-      triggerShake(8, 0.35);
+      triggerShake(9, 0.35);
       addDust(this.x, this.y, 12, '#ff4757');
       addFloatText(this.x, this.y - 30, '-1 HP', '#ff2222', 20);
 
@@ -632,7 +743,6 @@
     }
   };
 
-  // --- DRAW BLOCK CHARACTER WITH HEAVY HAMMER ---
   function drawBlockPlayer(ctx, x, y, facing, eyeX, eyeY, blinking, sqX, sqY, tintColor = null, attacking = false, attackTimer = 0) {
     ctx.save();
     ctx.translate(Math.round(x), Math.round(y));
@@ -686,11 +796,9 @@
       ctx.translate(side * 14, -4);
       ctx.rotate(side * angle);
 
-      // Long Shaft
       ctx.fillStyle = wood;
       ctx.fillRect(-2, -26, 4, 30);
 
-      // Huge Mallet Head
       ctx.fillStyle = iron;
       ctx.fillRect(-12, -34, 24, 12);
       ctx.fillStyle = ironLight;
@@ -698,7 +806,6 @@
       ctx.fillRect(-12, -34, 24, 3);
       ctx.restore();
     } else {
-      // Slung over back/side
       ctx.fillStyle = wood;
       ctx.fillRect(side * 12, -10, 3, 22);
       ctx.fillStyle = iron;
@@ -729,7 +836,7 @@
       this.hp = this.maxHp;
 
       this.state = 'WARNING';
-      this.warnTimer = 2.0;
+      this.warnTimer = 1.9;
       this.yHeight = 400;
       this.fallSpeed = 0;
       this.plopTimer = 0;
@@ -782,7 +889,7 @@
 
       if (this.state === 'WARNING') {
         this.warnTimer -= dt;
-        if (!this.soundWarned && this.warnTimer < 1.0) {
+        if (!this.soundWarned && this.warnTimer < 0.9) {
           AudioEngine.warning();
           this.soundWarned = true;
         }
@@ -822,6 +929,7 @@
       ctx.ellipse(this.x, this.y + 16 * this.scale, 26 * this.scale * shadowRatio, 12 * this.scale * shadowRatio, 0, 0, Math.PI * 2);
       ctx.fill();
 
+      // Warning Reticle
       if (this.state === 'WARNING') {
         const pulse = Math.sin(Date.now() * 0.016);
         ctx.strokeStyle = (Math.floor(Date.now() / 100) % 2 === 0) ? '#ff4757' : '#ffd32a';
@@ -831,9 +939,9 @@
         ctx.stroke();
 
         ctx.fillStyle = '#ff4757';
-        ctx.font = 'bold 15px Courier New';
+        ctx.font = 'bold 13px Courier New';
         ctx.textAlign = 'center';
-        ctx.fillText('⚠️ DROP!', this.x, this.y - 44 * this.scale);
+        ctx.fillText('DROP ZONE', this.x, this.y - 44 * this.scale);
       }
 
       ctx.save();
@@ -883,7 +991,6 @@
     const lightG = '#7bed9f';
     const spike = '#ffffff';
 
-    // Trunk
     ctx.fillStyle = mainG;
     ctx.fillRect(-14, -36, 28, 52);
     ctx.fillStyle = darkG;
@@ -891,35 +998,31 @@
     ctx.fillStyle = lightG;
     ctx.fillRect(4, -34, 4, 50);
 
-    // Left Arm
     ctx.fillStyle = mainG;
     ctx.fillRect(-28, -20, 16, 10);
     ctx.fillRect(-28, -32, 10, 16);
     ctx.fillStyle = darkG;
     ctx.fillRect(-28, -32, 3, 16);
 
-    // Right Arm
     ctx.fillStyle = mainG;
     ctx.fillRect(12, -14, 16, 10);
     ctx.fillRect(18, -28, 10, 18);
     ctx.fillStyle = lightG;
     ctx.fillRect(24, -28, 3, 18);
 
-    // Spines
     ctx.fillStyle = spike;
     ctx.fillRect(-16, -26, 3, 2);
     ctx.fillRect(-16, -10, 3, 2);
     ctx.fillRect(14, -28, 3, 2);
     ctx.fillRect(14, -8, 3, 2);
 
-    // Flower
     ctx.fillStyle = '#ff4757';
     ctx.fillRect(-6, -42, 12, 6);
   }
 
   // --- CONTINUOUS SPAWNER: 25 TO 50 CACTI PER WAVE ---
   let activeCacti = [];
-  let totalCactiForWave = 30; // Between 25 and 50
+  let totalCactiForWave = 30;
   let cactiSpawnedSoFar = 0;
   let cactiSpawnTimer = 0;
   let waveFinished = false;
@@ -931,7 +1034,6 @@
     waveFinished = false;
     cactiSpawnedSoFar = 0;
 
-    // Between 25 and 50 cacti scaling with wave
     const target = 25 + Math.min(25, (waveNum - 1) * 5 + Math.floor(Math.random() * 6));
     totalCactiForWave = Math.min(50, Math.max(25, target));
     cactiSpawnTimer = 0.5;
@@ -940,12 +1042,10 @@
   }
 
   function updateWaveSpawner(dt) {
-    // Keep continuously dropping cacti until quota (25-50) is reached
     if (cactiSpawnedSoFar < totalCactiForWave) {
       cactiSpawnTimer -= dt;
       if (cactiSpawnTimer <= 0) {
         cactiSpawnedSoFar++;
-        // Continuous pacing between drops
         cactiSpawnTimer = Math.max(0.7, 2.0 - (SaveData.wave * 0.05));
 
         const pad = 90;
@@ -961,15 +1061,13 @@
       }
     }
 
-    // Check if ALL 25-50 cacti have fallen AND been defeated
     if (cactiSpawnedSoFar >= totalCactiForWave && !waveFinished) {
       const remainingAlive = activeCacti.filter(c => c.state !== 'DESTROYED').length;
       if (remainingAlive === 0) {
         waveFinished = true;
-        // SHOPS ONLY SHOW AFTER 25-50 CACTUS DROP & CLEAR
         Stands.spawn();
         AudioEngine.coin();
-        addFloatText(screenW / 2, screenH / 2 - 70, 'WAVE CLEARED! SHOPS ARE OPEN!', '#2ed573', 26);
+        addFloatText(screenW / 2, screenH / 2 - 70, 'WAVE CLEARED! SHOPS ARE OPEN!', '#2ed573', 24);
       }
     }
   }
@@ -1000,8 +1098,8 @@
     draw(ctx) {
       if (!this.active) return;
 
-      drawPixelStand(ctx, this.sellStand.x, this.sellStand.y, '#ffa502', '#e67e22', '🌵 SELL', 'STAND');
-      drawPixelStand(ctx, this.shopStand.x, this.shopStand.y, '#3742fa', '#2f3542', '⚒️ SHOP', 'UPGRADES');
+      drawPixelStand(ctx, this.sellStand.x, this.sellStand.y, '#ffa502', '#e67e22', 'SELL', 'STAND');
+      drawPixelStand(ctx, this.shopStand.x, this.shopStand.y, '#3742fa', '#2f3542', 'SHOP', 'UPGRADES');
 
       // Next Wave Portal
       ctx.save();
@@ -1031,7 +1129,7 @@
       const distPort = Math.hypot(Player.x - this.nextPortal.x, Player.y - this.nextPortal.y);
 
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 14px Courier New';
+      ctx.font = 'bold 13px Courier New';
       ctx.textAlign = 'center';
       if (distSell < 75) ctx.fillText('CLICK / [E] TO SELL', this.sellStand.x, this.sellStand.y - 48);
       if (distShop < 75) ctx.fillText('CLICK / [E] TO UPGRADE', this.shopStand.x, this.shopStand.y - 48);
@@ -1127,8 +1225,8 @@
 
   function updateSellModalUI() {
     const rate = 10 + (SaveData.upgrades.partValue * 4);
-    sellPartsCount.textContent = `Cactus Parts Owned: ${SaveData.cactusParts}`;
-    sellRateText.textContent = `Current Market Rate: $${rate} Gold / Part`;
+    sellPartsCount.textContent = `Parts In Bag: ${SaveData.cactusParts}`;
+    sellRateText.textContent = `Market Rate: $${rate} Gold / Part`;
   }
 
   btnSellOne.addEventListener('click', () => {
@@ -1163,7 +1261,7 @@
   }
 
   function renderUpgradesList() {
-    shopGoldDisplay.textContent = `YOUR GOLD: $${SaveData.money}`;
+    shopGoldDisplay.textContent = `GOLD: $${SaveData.money}`;
     upgradesList.innerHTML = '';
 
     Object.keys(UPGRADES_DB).forEach(key => {
@@ -1177,7 +1275,7 @@
       const info = document.createElement('div');
       info.className = 'upg-info';
       info.innerHTML = `
-        <div class="upg-title">${item.icon} ${item.name} (Lv. ${lvl}/${item.max})</div>
+        <div class="upg-title">${item.name} (Lv. ${lvl}/${item.max})</div>
         <div class="upg-desc">${item.desc}</div>
       `;
       row.appendChild(info);
@@ -1232,9 +1330,13 @@
     const dt = Math.min((now - lastTime) / 1000, 0.1);
     lastTime = now;
 
-    update(dt);
-    render();
+    if (hitStopTime > 0) {
+      hitStopTime -= dt;
+    } else {
+      update(dt);
+    }
 
+    render();
     requestAnimationFrame(loop);
   }
 
@@ -1303,6 +1405,14 @@
       }
     }
 
+    // Shockwaves
+    for (let i = shockwaves.length - 1; i >= 0; i--) {
+      const sw = shockwaves[i];
+      sw.r += (sw.maxR - sw.r) * 0.25;
+      sw.life -= dt * 3.5;
+      if (sw.life <= 0) shockwaves.splice(i, 1);
+    }
+
     for (let i = particles.length - 1; i >= 0; i--) {
       const p = particles[i];
       p.x += p.vx;
@@ -1361,6 +1471,18 @@
   function drawGame() {
     Stands.draw(ctx);
 
+    // Shockwave Rings
+    shockwaves.forEach(sw => {
+      ctx.save();
+      ctx.strokeStyle = sw.color;
+      ctx.lineWidth = 3;
+      ctx.globalAlpha = Math.max(0, sw.life);
+      ctx.beginPath();
+      ctx.arc(sw.x, sw.y, sw.r, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    });
+
     droppedParts.forEach(drop => {
       const bob = Math.sin(Date.now() * 0.007 + drop.bob) * 3;
       ctx.fillStyle = '#2ed573';
@@ -1406,41 +1528,41 @@
     });
   }
 
-  // --- HUD ---
+  // --- HUD (PROCEDURAL PIXEL ICONS ONLY) ---
   function drawHUD() {
-    ctx.fillStyle = 'rgba(10, 8, 20, 0.88)';
+    ctx.fillStyle = 'rgba(10, 8, 20, 0.9)';
     ctx.fillRect(0, 0, screenW, 50);
     ctx.strokeStyle = '#3d2b56';
     ctx.lineWidth = 2;
     ctx.strokeRect(0, 48, screenW, 2);
 
-    ctx.font = 'bold 16px Courier New';
-    ctx.textAlign = 'left';
-
-    // Hearts
-    let hearts = '';
+    // Draw Hearts
     for (let i = 0; i < Player.maxHealth; i++) {
-      hearts += (i < Player.health ? '❤️' : '🖤');
+      PixelIcons.drawHeart(ctx, 20 + i * 20, 18, i < Player.health);
     }
-    ctx.fillStyle = '#ff4757';
-    ctx.fillText(hearts, 20, 32);
 
-    // Money & Parts
+    // Money (Coin Icon + Gold)
+    PixelIcons.drawCoin(ctx, 125, 20);
+    ctx.font = 'bold 15px Courier New';
+    ctx.textAlign = 'left';
     ctx.fillStyle = '#ffd32a';
-    ctx.fillText(`💰 $${SaveData.money}`, 140, 32);
+    ctx.fillText(`$${SaveData.money}`, 140, 32);
 
+    // Parts (Cactus Token Icon + Count)
+    PixelIcons.drawCactusToken(ctx, 235, 20);
     ctx.fillStyle = '#2ed573';
-    ctx.fillText(`🌵 Parts: ${SaveData.cactusParts}`, 270, 32);
+    ctx.fillText(`PARTS: ${SaveData.cactusParts}`, 250, 32);
 
+    // Wave Indicator
     ctx.fillStyle = '#a55eea';
-    ctx.fillText(`🏆 Wave ${SaveData.wave}`, 430, 32);
+    ctx.fillText(`WAVE: ${SaveData.wave}`, 380, 32);
 
-    // Continuous drop progress: "Cacti: X / 25-50"
+    // Drops Quota
     const remainingToDefeat = (totalCactiForWave - cactiSpawnedSoFar) + activeCacti.filter(c => c.state !== 'DESTROYED').length;
     ctx.fillStyle = remainingToDefeat > 0 ? '#ff4757' : '#2ed573';
-    ctx.fillText(remainingToDefeat > 0 ? `🌵 Drops: ${cactiSpawnedSoFar}/${totalCactiForWave}` : `✔️ SHOPS OPEN`, 560, 32);
+    ctx.fillText(remainingToDefeat > 0 ? `DROPS: ${cactiSpawnedSoFar}/${totalCactiForWave}` : `SHOPS OPEN`, 490, 32);
 
-    // Dash cooldown meter (labeled with [I])
+    // Dash Cooldown Bar
     const cdPct = Math.max(0, Player.dashCooldownTimer / Player.getDashCooldown());
     const mw = 84, mh = 16;
     const mx = Math.min(screenW - mw - 20, 750);
@@ -1478,13 +1600,18 @@
     ctx.fillText('PIXEL CACTUS CLASH', screenW / 2, screenH / 2 - 90);
 
     ctx.fillStyle = '#ffd32a';
-    ctx.font = 'bold 16px Courier New';
+    ctx.font = 'bold 15px Courier New';
     ctx.fillText('RETRO PIXEL SURVIVAL & HAMMER SMASH', screenW / 2, screenH / 2 - 45);
+
+    // Current Bank
+    ctx.fillStyle = '#ffd32a';
+    ctx.font = 'bold 16px Courier New';
+    ctx.fillText(`SAVED GOLD: $${SaveData.money}   |   SAVED PARTS: ${SaveData.cactusParts}`, screenW / 2, screenH / 2 - 10);
 
     // Play Button
     const bw = 240, bh = 56;
     const bx = screenW / 2 - bw / 2;
-    const by = screenH / 2 + 20;
+    const by = screenH / 2 + 25;
 
     ctx.fillStyle = '#1e824c';
     ctx.fillRect(bx, by + 4, bw, bh);
@@ -1495,33 +1622,42 @@
 
     ctx.fillStyle = '#0a2314';
     ctx.font = '900 24px Courier New';
-    ctx.fillText('PLAY', screenW / 2, by + 37);
+    ctx.fillText('START GAME', screenW / 2, by + 37);
 
-    // Updated Keybind Prompts
     ctx.fillStyle = '#a4b0be';
-    ctx.font = '14px Courier New';
-    ctx.fillText('WASD: Move  |  SPACE / CLICK: Hammer Smash  |  I: Dash', screenW / 2, screenH / 2 + 130);
+    ctx.font = '13px Courier New';
+    ctx.fillText('WASD: Move  |  SPACE / CLICK: Hammer Smash & Deflect  |  I: Dash', screenW / 2, screenH / 2 + 130);
   }
 
-  // --- GAME OVER ---
+  // --- GAME OVER: RETURNS TO MAIN MENU ---
   function drawGameOver() {
-    ctx.fillStyle = 'rgba(10, 6, 18, 0.92)';
+    ctx.fillStyle = 'rgba(10, 6, 18, 0.94)';
     ctx.fillRect(0, 0, screenW, screenH);
 
     ctx.fillStyle = '#ff4757';
     ctx.font = '900 48px Courier New';
     ctx.textAlign = 'center';
-    ctx.fillText('GAME OVER', screenW / 2, screenH / 2 - 80);
+    ctx.fillText('GAME OVER', screenW / 2, screenH / 2 - 90);
 
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 18px Courier New';
-    ctx.fillText(`Wave Reached: ${SaveData.wave}`, screenW / 2, screenH / 2 - 20);
-    ctx.fillText(`Parts Collected: ${SaveData.cactusParts}`, screenW / 2, screenH / 2 + 10);
-    ctx.fillText(`Total Gold: $${SaveData.money}`, screenW / 2, screenH / 2 + 40);
+    ctx.font = 'bold 17px Courier New';
+    ctx.fillText(`WAVE REACHED: ${SaveData.wave}`, screenW / 2, screenH / 2 - 25);
+    ctx.fillText(`PARTS IN BAG: ${SaveData.cactusParts}`, screenW / 2, screenH / 2 + 5);
+    ctx.fillText(`TOTAL GOLD: $${SaveData.money}`, screenW / 2, screenH / 2 + 35);
 
-    ctx.fillStyle = '#2ed573';
-    ctx.font = 'bold 20px Courier New';
-    ctx.fillText('CLICK ANYWHERE TO RETRY', screenW / 2, screenH / 2 + 110);
+    // Return to Main Menu Prompt
+    const bw = 280, bh = 50;
+    const bx = screenW / 2 - bw / 2;
+    const by = screenH / 2 + 85;
+
+    ctx.fillStyle = '#1e2499';
+    ctx.fillRect(bx, by + 4, bw, bh);
+    ctx.fillStyle = '#3742fa';
+    ctx.fillRect(bx, by, bw, bh);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 16px Courier New';
+    ctx.fillText('MAIN MENU [CLICK / KEY]', screenW / 2, by + 32);
   }
 
   // Start Loop
