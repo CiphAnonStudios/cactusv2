@@ -194,12 +194,12 @@
       return;
     }
 
-    if (e.code === 'i') {
+    if (e.code === 'Space') {
       e.preventDefault();
       if (gameState === STATES.PLAYING) Player.attack();
     }
 
-    if (key === 'Space') {
+    if (key === 'i') {
       if (gameState === STATES.PLAYING) Player.dash();
     }
 
