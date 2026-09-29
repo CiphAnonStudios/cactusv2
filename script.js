@@ -1458,7 +1458,7 @@
     const ts = 48;
     for (let x = 0; x < screenW; x += ts) {
       for (let y = 0; y < screenH; y += ts) {
-        ctx.fillStyle = ((Math.floor(x / ts) + Math.floor(y / ts)) % 2 === 0) ? '#241308' : '#42200a';
+        ctx.fillStyle = ((Math.floor(x / ts) + Math.floor(y / ts)) % 2 === 0) ? '#171126' : '#1e1631';
         ctx.fillRect(x, y, ts, ts);
       }
     }
